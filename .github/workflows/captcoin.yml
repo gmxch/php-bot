@@ -3,17 +3,15 @@ name: captcoin.php
 on:
   workflow_dispatch:
     inputs:
-      numbers:
-        description: 'List of account numbers, pisahkan pakai koma'
+      username:
+        description: 'CaptchaCoin Username'
         required: true
-        default: "001,002,003,004,005"
+        default: "001"
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        account: ${{ fromJSON('["' + join('","', github.event.inputs.numbers.split(',')) + '"]') }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -29,5 +27,5 @@ jobs:
       - name: Run Captcoin.php
         run: php captcoin/captcoin.php
         env:
-          USERNAME: gtg${{ matrix.account }}
+          USERNAME: gtg${{ github.event.inputs.username }}
           PASSWORD: memeX3213!
