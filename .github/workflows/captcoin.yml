@@ -6,7 +6,6 @@ on:
       username:
         description: 'CaptchaCoin Username'
         required: true
-        default: "001"
 
 jobs:
   run-bot:
@@ -27,5 +26,5 @@ jobs:
       - name: Run Captcoin.php
         run: php captcoin/captcoin.php
         env:
-          USERNAME: gtg${{ github.event.inputs.username }}
+          USERNAME: {{ github.event.inputs.username }}
           PASSWORD: memeX3213!
