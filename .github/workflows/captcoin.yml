@@ -6,7 +6,6 @@ on:
       username:
         description: 'CaptchaCoin Username'
         required: true
-    inputs:
       password:
         description: 'CaptchaCoin password'
         required: true
