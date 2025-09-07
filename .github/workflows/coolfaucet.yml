@@ -24,8 +24,32 @@ jobs:
 
       - name: Run Puppeteer login
         env:
-          FAUCET_LOGIN: ${{ github.event.inputs.email }}
-        run: node coolfaucet/coolfaucet.js
+          FAUCET_LOGIN: ${{ github.event.inputs.login }}
+        run: |
+          node <<'EOF'
+          const puppeteer = require('puppeteer');
+          const fs = require('fs');
+
+          (async () => {
+              const email = process.env.FAUCET_LOGIN;
+              const browser = await puppeteer.launch({
+                  headless: true,
+                  args: ['--no-sandbox', '--disable-setuid-sandbox']
+              });
+              const page = await browser.newPage();
+              await page.goto('https://coolfaucet.hu/', { waitUntil: 'domcontentloaded', timeout: 0 });
+              await page.type('input[name="email"]', email);
+              await page.click('button[type="submit"]');
+              await page.waitForSelector('.cf-stats', { timeout: 60000 });
+               const cookies = await page.cookies();
+               const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+               console.log('Captured cookies:');
+               console.log(cookieString);
+               fs.writeFileSync('cookie.txt', cookieString);
+               console.log('Cookie saved to cookie.txt');
+               await browser.close();
+          })();
+          EOF
         
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
