@@ -9,14 +9,14 @@ const puppeteer = require('puppeteer');
     });
     const page = await browser.newPage();
 
-    await page.goto('https://coolfaucet.hu/', { waitUntil: 'networkidle2' });
+    await page.goto('https://coolfaucet.hu/', { waitUntil: 'domcontentloaded', timeout: 0 });
 
     // Fill the email input and submit
     await page.type('input[name="email"]', email);
     await page.click('button[type="submit"]');
 
-    // Wait for login to complete
-    await page.waitForNavigation({ waitUntil: 'networkidle2' });
+    // Wait for login to complete by checking for a selector that appears only after login
+    await page.waitForSelector('.cf-stats', { timeout: 60000 }); // adjust if needed
 
     // Get cookies
     const cookies = await page.cookies();
