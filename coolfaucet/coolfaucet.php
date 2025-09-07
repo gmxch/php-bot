@@ -238,9 +238,10 @@ while (true) {
     ClaimInventory($inventoryUrl, $cookie, $userAgent, $referer);
 
     // Auto withdraw if balance threshold reached
-    if ($balance >= 0.00005) {
+    if ($balance >= 0.0001) {
         autoWithdraw($withdrawUrl, $cookie, $userAgent, $referer);
     }
 
     sleep(60); // Wait 1 min
+
 }
