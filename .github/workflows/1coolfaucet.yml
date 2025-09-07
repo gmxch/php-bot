@@ -1,4 +1,4 @@
-name: Test Puppeteer Login
+name: Coolfaucet.php
 
 on:
   workflow_dispatch:
