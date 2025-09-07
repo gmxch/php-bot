@@ -17,16 +17,15 @@ const fs = require('fs');
     await page.click('button[type="submit"]');
 
     // tunggu sampai balance muncul
-    await page.waitForSelector('.stat-item span.ms-2', { timeout: 60000 });
+    await page.waitForFunction(
+        () =>
+            document.querySelector('body').innerText.includes('balance'), { timeout: 60000 });
 
     // ambil teks balance
     const balance = await page.$eval(
-        '.stat-item span.ms-2',
-        el => el.innerText
+        '.stat-item:first-child .ms-2',
+        el => el.innerText.trim()
     );
-
-    console.log('=== LOGIN SUCCESS ===');
-    console.log('Balance:', balance);
 
     // ambil cookies
     const cookies = await page.cookies();
@@ -36,7 +35,7 @@ const fs = require('fs');
     console.log(cookieString);
 
     fs.writeFileSync('cookie.txt', cookieString);
-    console.log('Cookie saved to cookie.txt');
+    console.log('saved to cookie.txt');
 
     await browser.close();
 })();
