@@ -7,10 +7,6 @@ on:
         description: 'Full Cookie'
         required: true
         default: ''
-      USRAGNT:
-        description: 'User-Agent'
-        required: true
-        default: ''
 
 jobs:
   run-bot:
@@ -28,5 +24,4 @@ jobs:
       - name: Run PHP Bot
         env:
           COOKIE: ${{ github.event.inputs.COOKIE }}
-          USRAGNT: ${{ github.event.inputs.USRAGNT }}
         run: php path/to/your_script.php
