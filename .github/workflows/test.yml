@@ -1,0 +1,28 @@
+name: Test Puppeteer Login
+
+on:
+  workflow_dispatch:
+    inputs:
+      login:
+        description: 'Enter your LOGIN'
+        required: true
+        type: string
+
+jobs:
+  run-js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install puppeteer
+
+      - name: Run Puppeteer login
+        env:
+          FAUCET_LOGIN: ${{ github.event.inputs.email }}
+        run: node coolfaucet/coolfaucet.js
