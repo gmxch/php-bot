@@ -20,8 +20,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+      - name: Set executable permission
+        run: chmod +x coolfaucet/coolfaucet.php
 
       - name: Run PHP Bot
         env:
           COOKIE: ${{ github.event.inputs.COOKIE }}
-        run: php path/to/your_script.php
+        run: php coolfaucet/coolfaucet.php
