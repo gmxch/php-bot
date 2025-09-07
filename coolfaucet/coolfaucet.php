@@ -5,7 +5,7 @@ date_default_timezone_set("Asia/Kuala_Lumpur");
 echo "\n\033[1;35mðŸ”¥ BOT COOLFAUCET - Created by Akiefx ðŸ‡²ðŸ‡¾\033[0m\n";
 
 $cookie = getenv('COOKIE');
-$uagent = file('USRAGNT.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$uagent = file(__DIR__ . '/../USRAGNT.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $userAgent = $uagent[array_rand($uagent)];
 echo "set UA => $userAgent\n";
 
@@ -161,3 +161,4 @@ while (true) {
     sleep(60); // â„1¤7 Tunggu 1 minit sebelum ulang
 
 }
+
