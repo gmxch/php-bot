@@ -12,22 +12,29 @@ const fs = require('fs');
 
     await page.goto('https://coolfaucet.hu/', { waitUntil: 'domcontentloaded', timeout: 0 });
 
-    // Fill the email input and submit
+    // login
     await page.type('input[name="email"]', email);
     await page.click('button[type="submit"]');
 
-    // Wait for login to complete by checking for a selector that appears only after login
-    await page.waitForSelector('.cf-stats', { timeout: 60000 }); // adjust if needed
+    // tunggu sampai balance muncul
+    await page.waitForSelector('.stat-item span.ms-2', { timeout: 60000 });
 
-    // Get cookies
+    // ambil teks balance
+    const balance = await page.$eval(
+        '.stat-item span.ms-2',
+        el => el.innerText
+    );
+
+    console.log('=== LOGIN SUCCESS ===');
+    console.log('Balance:', balance);
+
+    // ambil cookies
     const cookies = await page.cookies();
     const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
 
-    // Show cookies in logs
     console.log('Captured cookies:');
     console.log(cookieString);
 
-    // Save cookies to cookie.txt
     fs.writeFileSync('cookie.txt', cookieString);
     console.log('Cookie saved to cookie.txt');
 
