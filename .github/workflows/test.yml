@@ -26,3 +26,13 @@ jobs:
         env:
           FAUCET_LOGIN: ${{ github.event.inputs.email }}
         run: node coolfaucet/coolfaucet.js
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - name: Set executable permission
+        run: chmod +x coolfaucet/coolfaucet.php
+
+      - name: Run PHP Bot
+        run: php coolfaucet/coolfaucet.php
