@@ -41,7 +41,7 @@ jobs:
               await page.type('input[name="email"]', email);
               await page.click('button[type="submit"]');
               await page.waitForFunction(() => document.querySelector('body').innertext.includes('balance'), { timeout: 60000 });
-               const balance = awat.page.$eval('stat-item:first-child .ms-2, el => el.innertext.trim());
+               const balance = awat.page.$eval('.stat-item:first-child .ms-2, el => el.innertext.trim());
                console.log('Logged In');
                console.log('Balance:', balance);
                const cookies = await page.cookies();
