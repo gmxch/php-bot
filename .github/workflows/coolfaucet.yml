@@ -40,13 +40,16 @@ jobs:
               await page.goto('https://coolfaucet.hu/', { waitUntil: 'domcontentloaded', timeout: 0 });
               await page.type('input[name="email"]', email);
               await page.click('button[type="submit"]');
-              await page.waitForSelector('.cf-stats', { timeout: 60000 });
+              await page.waitForFunction(() => document.querySelector('body').innertext.includes('balance'), { timeout: 60000 });
+               const balance = awat.page.$eval('stat-item:first-child .ms-2, el => el.innertext.trim());
+               console.log('Logged In');
+               console.log('Balance:', balance);
                const cookies = await page.cookies();
                const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
                console.log('Captured cookies:');
                console.log(cookieString);
                fs.writeFileSync('cookie.txt', cookieString);
-               console.log('Cookie saved to cookie.txt');
+               console.log('Cookie saved');
                await browser.close();
           })();
           EOF
