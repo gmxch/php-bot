@@ -2,13 +2,13 @@
 <?php
 date_default_timezone_set("Asia/Kuala_Lumpur");
 
-echo "\n\033[1;35mðŸ”¥ BEASTHIT CREATOR BY - AKIEFX ðŸ‡²ðŸ‡¾\033[0m\n";
-echo "\033[1;36mMasukkan full Cookie:\033[0m ";
-$cookie = trim(fgets(STDIN)); 
-/* echo "\033[1;36mMasukkan User-Agent:\033[0m ";
+echo "\n\033[1;35mðŸ”¥ TRUEBONUS CREATOR BY - AKIEFX ðŸ‡²ðŸ‡¾\033[0m\n";
+/*echo "\033[1;36mMasukkan full Cookie:\033[0m ";
+$cookie = trim(fgets(STDIN)); */
+/*echo "\033[1;36mMasukkan User-Agent:\033[0m ";
 $userAgent = trim(fgets(STDIN)); */
 
-//$cookie = file_get_contents('cookie.txt');
+$cookie = file_get_contents('cookie.txt');
 $uagent = file(__DIR__ . '/../USRAGNT.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $userAgent = $uagent[array_rand($uagent)];
 echo "set UA => $userAgent\n";
@@ -297,5 +297,6 @@ while (true) {
     echo "tunggu 60s";
     sleep(60);
 }
+
 
 
