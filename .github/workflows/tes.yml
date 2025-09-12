@@ -51,7 +51,7 @@ jobs:
                           await page.waitForSelector('input[name="email"]', { timeout: 15000 });
                           await page.type('input[name="email"]', email);
                           await page.click('button[type="submit"]');
-                          await page.waitForFunction(() => document.body.innerText.includes('Balance:'), { timeout: 120000 });
+                          await page.waitForFunction(() => document.body.innerText.includes('Balance:'), { timeout: 10000 });
                           const cookies = await page.cookies();
                           const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
                           const fileName = `cookie_1_${j+1}.txt`;
@@ -64,8 +64,8 @@ jobs:
                           console.log(`❌ Attempt ${attempt} failed for Website ${j+1}: ${err.message}`);
                           await page.screenshot({ path: `fail_1_${j+1}_attempt${attempt}.png` });
                           await page.close();
-                          if (attempt === 3 && !success) {
-                              console.log(`⚠️ Failed to capture cookie after 3 attempts for Website ${j+1}`);
+                          if (attempt === 5 && !success) {
+                              console.log(`⚠️ Failed to capture cookie after few attempts for Website ${j+1}`);
                           }
                       }
                   }
