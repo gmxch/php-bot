@@ -26,7 +26,7 @@ jobs:
       - name: Install Node.js dependencies
         run: npm install puppeteer
 
-      # Node.js login & generate cookies inline
+      # Node.js login & generate cookies inline (lebih stabil)
       - name: Node.js Login & Generate Cookies
         env:
           ACCOUNTS: ${{ github.event.inputs.account1 }},${{ github.event.inputs.account2 }}
@@ -34,6 +34,7 @@ jobs:
           cat <<'EOF' > tes.js
           const puppeteer = require('puppeteer');
           const fs = require('fs');
+
           (async () => {
               const accounts = process.env.ACCOUNTS.split(',');
               const websites = ["https://coolfaucet.hu", "https://beasthit.com", "https://truebonus.ru"];
@@ -41,23 +42,41 @@ jobs:
                   headless: true,
                   args: ['--no-sandbox', '--disable-setuid-sandbox']
               });
+
               for (let i = 0; i < accounts.length; i++) {
                   const email = accounts[i];
                   for (let j = 0; j < websites.length; j++) {
                       const url = websites[j];
-                      const page = await browser.newPage();
-                      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
-                      await page.type('input[name="email"]', email);
-                      await page.click('button[type="submit"]');
-                      await page.waitForFunction(() => document.body.innerText.includes('Balance:'), { timeout: 60000 });
-                      const cookies = await page.cookies();
-                      const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
-                      const fileName = `cookie_${i+1}_${j+1}.txt`;
-                      fs.writeFileSync(fileName, cookieString);
-                      console.log(`Account ${i+1} logged in website ${j+1} (${url}), saved to ${fileName}`);
-                      await page.close();
+                      let success = false;
+                      for (let attempt = 1; attempt <= 3; attempt++) {
+                          const page = await browser.newPage();
+                          try {
+                              console.log(`Account ${i+1}, Website ${j+1}, Attempt ${attempt}...`);
+                              await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
+                              await page.waitForSelector('input[name="email"]', { timeout: 15000 });
+                              await page.type('input[name="email"]', email);
+                              await page.click('button[type="submit"]');
+                              await page.waitForFunction(() => document.body.innerText.includes('Balance:'), { timeout: 120000 });
+                              const cookies = await page.cookies();
+                              const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+                              const fileName = `cookie_${i+1}_${j+1}.txt`;
+                              fs.writeFileSync(fileName, cookieString);
+                              console.log(`✅ Account ${i+1} logged in website ${j+1} (${url}), saved to ${fileName}`);
+                              success = true;
+                              await page.close();
+                              break;
+                          } catch (err) {
+                              console.log(`❌ Attempt ${attempt} failed for Account ${i+1} Website ${j+1}: ${err.message}`);
+                              await page.screenshot({ path: `fail_${i+1}_${j+1}_attempt${attempt}.png` });
+                              await page.close();
+                              if (attempt === 3 && !success) {
+                                  console.log(`⚠️ Failed to capture cookie after 3 attempts for Account ${i+1} Website ${j+1}`);
+                              }
+                          }
+                      }
                   }
               }
+
               await browser.close();
           })();
           EOF
