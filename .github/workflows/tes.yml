@@ -1,0 +1,83 @@
+name: TES
+
+on:
+  workflow_dispatch:
+    inputs:
+      account1:
+        description: 'Akun pertama'
+        required: true
+      account2:
+        description: 'Akun kedua'
+        required: true
+
+jobs:
+  run-bots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Install Puppeteer
+      - name: Install Node.js dependencies
+        run: npm install puppeteer
+
+      # Node.js login & generate cookies inline
+      - name: Node.js Login & Generate Cookies
+        env:
+          ACCOUNTS: ${{ github.event.inputs.account1 }},${{ github.event.inputs.account2 }}
+        run: |
+          cat <<'EOF' > tes.js
+          const puppeteer = require('puppeteer');
+          const fs = require('fs');
+          (async () => {
+              const accounts = process.env.ACCOUNTS.split(',');
+              const websites = ["https://coolfaucet.hu", "https://beasthit.com", "https://truebonus.ru"];
+              const browser = await puppeteer.launch({
+                  headless: true,
+                  args: ['--no-sandbox', '--disable-setuid-sandbox']
+              });
+              for (let i = 0; i < accounts.length; i++) {
+                  const email = accounts[i];
+                  for (let j = 0; j < websites.length; j++) {
+                      const url = websites[j];
+                      const page = await browser.newPage();
+                      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
+                      await page.type('input[name="email"]', email);
+                      await page.click('button[type="submit"]');
+                      await page.waitForFunction(() => document.body.innerText.includes('Balance:'), { timeout: 60000 });
+                      const cookies = await page.cookies();
+                      const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+                      const fileName = `cookie_${i+1}_${j+1}.txt`;
+                      fs.writeFileSync(fileName, cookieString);
+                      console.log(`Account ${i+1} logged in website ${j+1} (${url}), saved to ${fileName}`);
+                      await page.close();
+                  }
+              }
+              await browser.close();
+          })();
+          EOF
+          node tes.js
+
+      # Setup PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      # Run 6 PHP bots in parallel
+      - name: Run 6 PHP bots
+        run: |
+          # Akun 1
+          php tes/coolfaucet.php cookie_1_1.txt &
+          php tes/beasthit.php cookie_1_2.txt &
+          php tes/truebonus.php cookie_1_3.txt &
+          # Akun 2
+          php tes/coolfaucet.php cookie_2_1.txt &
+          php tes/beasthit.php cookie_2_2.txt &
+          php tes/truebonus.php cookie_2_3.txt &
+          wait
