@@ -3,8 +3,14 @@ name: TES
 on:
   workflow_dispatch:
     inputs:
-      account:
-        description: 'Akun'
+      cookie1:
+        description: 'Cookie untuk coolfaucet.hu'
+        required: true
+      cookie2:
+        description: 'Cookie untuk beasthit.com'
+        required: true
+      cookie3:
+        description: 'Cookie untuk truebonus.ru'
         required: true
 
 jobs:
@@ -13,79 +19,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      # Install Puppeteer
-      - name: Install Node.js dependencies
-        run: npm install puppeteer
-
-      # Node.js login & generate cookies inline (lebih stabil)
-      - name: Node.js Login & Generate Cookies
-        env:
-          ACCOUNT: ${{ github.event.inputs.account }}
-        run: |
-          cat <<'EOF' > tes.js
-          const puppeteer = require('puppeteer');
-          const fs = require('fs');
-
-          (async () => {
-              const email = process.env.ACCOUNT;
-              const websites = ["https://coolfaucet.hu", "https://beasthit.com", "https://truebonus.ru"];
-              const browser = await puppeteer.launch({
-                  headless: true,
-                  args: ['--no-sandbox', '--disable-setuid-sandbox']
-              });
-
-              for (let j = 0; j < websites.length; j++) {
-                  const url = websites[j];
-                  let success = false;
-                  for (let attempt = 1; attempt <= 3; attempt++) {
-                      const page = await browser.newPage();
-                      try {
-                          console.log(`Website ${j+1}, Attempt ${attempt}...`);
-                          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 0 });
-                          await page.waitForSelector('input[name="email"]', { timeout: 15000 });
-                          await page.type('input[name="email"]', email);
-                          await page.click('button[type="submit"]');
-                          await page.waitForFunction(() => document.body.innerText.includes('Balance:'), { timeout: 10000 });
-                          const cookies = await page.cookies();
-                          const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
-                          const fileName = `cookie_1_${j+1}.txt`;
-                          fs.writeFileSync(fileName, cookieString);
-                          console.log(`✅ Logged in website ${j+1} (${url}), saved to ${fileName}`);
-                          success = true;
-                          await page.close();
-                          break;
-                      } catch (err) {
-                          console.log(`❌ Attempt ${attempt} failed for Website ${j+1}: ${err.message}`);
-                          await page.screenshot({ path: `fail_1_${j+1}_attempt${attempt}.png` });
-                          await page.close();
-                          if (attempt === 5 && !success) {
-                              console.log(`⚠️ Failed to capture cookie after few attempts for Website ${j+1}`);
-                          }
-                      }
-                  }
-              }
-
-              await browser.close();
-          })();
-          EOF
-          node tes.js
-
       # Setup PHP
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
 
-      # Run 3 PHP bots in parallel (1 akun)
+      # Simpan cookie input ke file
+      - name: Save Cookies to File
+        run: |
+          echo "${{ github.event.inputs.cookie1 }}" > cookie_1.txt
+          echo "${{ github.event.inputs.cookie2 }}" > cookie_2.txt
+          echo "${{ github.event.inputs.cookie3 }}" > cookie_3.txt
+
+      # Jalankan 3 PHP bots paralel
       - name: Run PHP bots
         run: |
-          php tes/coolfaucet.php cookie_1_1.txt &
-          php tes/beasthit.php cookie_1_2.txt &
-          php tes/truebonus.php cookie_1_3.txt &
+          php tes/coolfaucet.php cookie_1.txt &
+          php tes/beasthit.php cookie_2.txt &
+          php tes/truebonus.php cookie_3.txt &
           wait
