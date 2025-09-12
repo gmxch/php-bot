@@ -66,8 +66,10 @@ jobs:
               url = "https://coolfaucet.hu/";
             } else if (bot === "beasthit/beasthit.php") {
               url = "https://beasthit.com/";
+            } else if (bot === "truebonus/truebonus.php") {
+              url = "https://truebonus.ru/";
             } else {
-              throw new Error("nodejs gagal : " + bot);
+              throw new Error("nodejs gagal");
             }
             await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 0});
             await page.type('input[name="email"]', email);
