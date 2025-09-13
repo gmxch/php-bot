@@ -54,4 +54,4 @@ jobs:
       - name: Run ZeroFaucet
         env:
           LOGIN: ${{ github.event.inputs.login }}
-        run: php tes/zeroFaucet.php
+        run: php tes/zerofaucet.php
