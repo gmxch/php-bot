@@ -18,7 +18,7 @@ function cekRecaptchaV3($html, $url = null) {
     if (preg_match('/grecaptcha\.execute\([\'"]([a-zA-Z0-9_-]{40,})[\'"]/', $html, $m)) {
         $sitekey = $m[1];
         echo "[!] reCAPTCHA v3 detected! Sitekey: $sitekey\n";
-        $cmd = "node solveRecaptcha.js {$sitekey} {$url}";
+        $cmd = "node tes/solveRecaptcha.js {$sitekey} {$url}";
         $token = trim(shell_exec($cmd));
         echo "[+] Token received: $token\n";
         return $token;
