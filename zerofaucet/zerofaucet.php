@@ -6,12 +6,22 @@ const host    = "https://zerofaucet.com/";
 const youtube = "https://youtube.com/@iewil";
 
 $wallet = getenv('LOGIN');
+//$wallet = readline('wallet: ');
 
-/* $uagent = file('USRAGNT.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES); */
+//$uagent = file('USRAGNT.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES); 
 $uagent = file(__DIR__ . '/../USRAGNT.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES); 
 
 $userAgent = $uagent[array_rand($uagent)];
 echo "set UA => $userAgent\n";
+
+function cekRecaptchaV3($html) {
+    if (preg_match('/grecaptcha\.execute\([\'"]([a-zA-Z0-9_-]{40,})[\'"]/', $html, $m)) {
+        $sitekey = $m[1];
+        file_put_contents("recaptcha_v3_found.html", $html);
+        echo "[!] reCAPTCHA v3 detected! Sitekey: $sitekey\n";
+        exit;
+    }
+}
 
 function curl(string $method, string $url, $headers = null, $data = null) {
     $method = strtoupper($method);
@@ -40,7 +50,7 @@ function curl(string $method, string $url, $headers = null, $data = null) {
 }
 
 function line() {
-    print str_repeat("~", 50)."\n";
+    print str_repeat("~", 10)."\n";
 }
 
 function banner($wallet) {
@@ -117,13 +127,28 @@ $h = [
 ];
 
 $r = curl("GET", host."index.php?loginwallet=".$wallet."&ref=", $h);
-$balance = trim(explode("\n", explode("<font size='5' color='#7d5f2c'>My Balance", $r)[1])[1]);
-print "Balance\t\t:: $balance\n";
+cekRecaptchaV3($r);
+$doc = new DOMDocument();
+libxml_use_internal_errors(true);
+$doc->loadHTML($r);
+libxml_clear_errors();
+
+$xpath = new DOMXPath($doc);
+
+// cari elemen font yang ada kata "Zatoshi" atau "ZER"
+$balanceNode = $xpath->query("//font[contains(text(),'Zatoshi') or contains(text(),'ZER')]");
+if ($balanceNode->length > 0) {
+    $balance = trim($balanceNode->item(0)->textContent);
+    print "Balance\t\t:: $balance\n";
+} else {
+    print "Balance not found!\n";
+}
 line();
 
 $balance_awal = $balance;
 while (true) {
     $r = curl("GET", host."index.php?loginwallet=".$wallet."&ref=", $h);
+    cekRecaptchaV3($r);
     $location = explode('"', explode('window.location.href = "', $r)[1])[0];
 
     if ($location == "https://zerofaucet.com/dailygift.php") {
@@ -135,6 +160,7 @@ while (true) {
         print "You win\t\t:: $win\n";
 
         $r = curl("GET", host."index.php?loginwallet=".$wallet."&ref=", $h);
+        cekRecaptchaV3($r);
         $balance = trim(explode("\n", explode("<font size='5' color='#7d5f2c'>My Balance", $r)[1])[1]);
         print "Balance\t\t:: $balance\n";
         line();
@@ -160,16 +186,19 @@ cek_loc:
     sleep(1);
     $confirm = explode('"', explode('<a href="index.php?confirm1=', $r)[1])[0];
     $r = curl("GET", host."index.php?confirm1=".$confirm, $h);
+    cekRecaptchaV3($r);
     sleep(1);
     $reward = strip_tags(explode('</font>', explode("<font size='6' color='#ffff00'><b>", $r)[1])[0]);
 
     $r = curl("GET", host."index.php?loginwallet=".$wallet."&ref=", $h);
+    cekRecaptchaV3($r);
     $balance = trim(explode("\n", explode("<font size='5' color='#7d5f2c'>My Balance", $r)[1])[1]);
 
     if ($balance_awal == $balance) {
         print "land under attack!\n";
 
         $r = curl("GET", host."enemy.php", $h);
+        cekRecaptchaV3($r);
         $img = curl("GET", host."captcha.php?loginwallet=".$wallet, array_merge($h,["referer: https://zerofaucet.com/enemy.php"]));
         $cap = $tesseract->Zerofaucet(base64_encode($img));
         $r = curl("GET", host."enemy.php?easycaptcha=".$cap."&action=Attack", $h);
@@ -181,10 +210,11 @@ cek_loc:
 
     print "Reward\t\t:: $reward\n";
     $r = curl("GET", host."index.php?loginwallet=".$wallet."&ref=", $h);
+    cekRecaptchaV3($r);
     $balance = trim(explode("\n", explode("<font size='5' color='#7d5f2c'>My Balance", $r)[1])[1]);
     print "Balance\t\t:: $balance\n";
     line();
     $balance_awal = $balance;
-    echo('wait 60s\n');
+    echo "wait 60s\n";
     sleep(60);
 }
