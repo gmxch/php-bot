@@ -10,6 +10,7 @@ on:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -28,36 +29,35 @@ jobs:
       - name: Prepare solveRecaptcha.js
         run: |
           cat <<'EOF' > tes/solveRecaptcha.js
-const puppeteer = require('puppeteer');
+          const puppeteer = require('puppeteer');
 
-async function solveRecaptcha(sitekey, url) {
-  if (!sitekey || !url) {
-    console.error('Usage: node solveRecaptcha.js <sitekey> <url>');
-    process.exit(1);
-  }
+          async function solveRecaptcha(sitekey, url) {
+            if (!sitekey || !url) {
+              console.error('Usage: node solveRecaptcha.js <sitekey> <url>');
+              process.exit(1);
+            }
 
-  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
-  const page = await browser.newPage();
+            const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+            const page = await browser.newPage();
+            await page.goto(url, { waitUntil: 'networkidle2' });
 
-  await page.goto(url, { waitUntil: 'networkidle2' });
+            const token = await page.evaluate(async (sitekey) => {
+              return await new Promise(resolve => {
+                grecaptcha.ready(() => {
+                  grecaptcha.execute(sitekey, { action: 'submit' }).then(resolve);
+                });
+              });
+            }, sitekey);
 
-  const token = await page.evaluate(async (sitekey) => {
-    return await new Promise(resolve => {
-      grecaptcha.ready(() => {
-        grecaptcha.execute(sitekey, { action: 'submit' }).then(resolve);
-      });
-    });
-  }, sitekey);
+            console.log(token);
+            await browser.close();
+          }
 
-  console.log(token);
-  await browser.close();
-}
+          const [sitekey, url] = process.argv.slice(2);
+          solveRecaptcha(sitekey, url).catch(console.error);
+          EOF
 
-const [sitekey, url] = process.argv.slice(2);
-solveRecaptcha(sitekey, url).catch(console.error);
-EOF
-
-      - name: Run ZeroFaucet
+      - name: Run ZeroFaucet PHP
         env:
           LOGIN: ${{ github.event.inputs.login }}
         run: php tes/zerofaucet.php
