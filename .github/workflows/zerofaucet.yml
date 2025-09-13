@@ -24,7 +24,7 @@ jobs:
 
       - name: Prepare solveRecaptcha.js
         run: |
-          cat <<'EOF' > zeroFaucet/solveRecaptcha.js
+          cat <<'EOF' > tes/solveRecaptcha.js
           const puppeteer = require('puppeteer');
 
           async function solveRecaptcha(sitekey, url) {
