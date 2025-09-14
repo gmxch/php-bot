@@ -1,5 +1,5 @@
 <?php
-system("clear");
+//system("clear");
 error_reporting(0);
 date_default_timezone_set("Asia/Jakarta");
 
@@ -40,7 +40,7 @@ function curl($url, $cookie, $user_agent, $post = null) {
 }
 
 function solvecaptcha($file) {
-    exec("magick convert $file -resize 300x80 -colorspace Gray -threshold 60% $file 2>/dev/null");
+    exec("convert $file -resize 300x80 -colorspace Gray -threshold 60% $file 2>/dev/null");
     $out = [];
     exec("tesseract $file stdout --psm 8 -c tessedit_char_whitelist=0123456789 2>/dev/null", $out);
     return trim(implode("", $out));
