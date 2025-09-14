@@ -11,6 +11,7 @@ on:
           - captcoin/captcoin.php
           - coolfaucet/coolfaucet.php
           - zerofaucet/zerofaucet.php
+          - zerocoin/zerocoin.php
           - beasthit/beasthit.php
           - truebonus/truebonus.php
           - zanlix/zanlix.php
