@@ -10,11 +10,10 @@ on:
           - adscoin/adscoin.php
           - captcoin/captcoin.php
           - coolfaucet/coolfaucet.php
-          - zerofaucet/zerofaucet.php
-          - zerocoin/zerocoin.php
           - beasthit/beasthit.php
           - truebonus/truebonus.php
           - zanlix/zanlix.php
+          - feyorratop/feyorratop.php
         required: true
       login:
         description: "login"
@@ -37,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup OCR
-        if: ${{ github.event.inputs.bot == 'zerofaucet/zerofaucet.php' }}
+        if: ${{ github.event.inputs.bot == 'feyorratop/feyorratop.php' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y tesseract-ocr imagemagick
