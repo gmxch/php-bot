@@ -14,6 +14,7 @@ on:
           - truebonus/truebonus.php
           - zanlix/zanlix.php
           - feyorratop/feyorratop.php
+          - coinads/coinads.php
         required: true
       login:
         description: "login"
