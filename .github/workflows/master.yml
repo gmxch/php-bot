@@ -24,8 +24,8 @@ on:
         description: "Password"
         required: false
       xevil:
-      description: "apikey"
-      required: false
+        description: "apikey"
+        required: false
       login_method:
         type: choice
         description: "method"
@@ -33,7 +33,7 @@ on:
           - none
           - cookie
           - nodejs
-        required: false
+        required: true
 
 jobs:
   run-bot:
