@@ -15,6 +15,7 @@ on:
           - zanlix/zanlix.php
           - feyorratop/feyorratop.php
           - coinads/coinads.php
+          - luckywatch/luckywatch.php
         required: true
       login:
         description: "login"
@@ -22,6 +23,9 @@ on:
       pass:
         description: "Password"
         required: false
+      xevil:
+      description: "apikey"
+      required: false
       login_method:
         type: choice
         description: "method"
@@ -36,11 +40,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup OCR
-        if: ${{ github.event.inputs.bot == 'feyorratop/feyorratop.php' }}
+      - name: Setup PKG Helper
         run: |
           sudo apt-get update
-          sudo apt-get install -y tesseract-ocr imagemagick
+          sudo apt-get install -y tesseract-ocr imagemagick php-gd
       # Setup 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -98,3 +101,4 @@ jobs:
         env:
           LOGIN: ${{ github.event.inputs.login }}
           PASS: ${{ github.event.inputs.pass }}
+          XEVIL: ${{ github.event.inputs.xevil }}
