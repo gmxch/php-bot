@@ -16,7 +16,7 @@ on:
           - feyorratop/feyorratop.php
           - coinads/coinads.php
           - luckywatch/luckywatch.php
-        required: true
+        required: false
       login:
         description: "login"
         required: false
@@ -33,7 +33,7 @@ on:
           - none
           - cookie
           - nodejs
-        required: true
+        required: false
 
 jobs:
   run-bot:
