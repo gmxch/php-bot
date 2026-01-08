@@ -1,0 +1,41 @@
+name: TES
+
+on:
+  workflow_dispatch:
+    inputs:
+      cookie1:
+        description: 'Cookie untuk coolfaucet.hu'
+        required: true
+      cookie2:
+        description: 'Cookie untuk beasthit.com'
+        required: true
+      cookie3:
+        description: 'Cookie untuk truebonus.ru'
+        required: true
+
+jobs:
+  run-bots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Setup PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      # Simpan cookie input ke file
+      - name: Save Cookies to File
+        run: |
+          echo "${{ github.event.inputs.cookie1 }}" > cookie_1.txt
+          echo "${{ github.event.inputs.cookie2 }}" > cookie_2.txt
+          echo "${{ github.event.inputs.cookie3 }}" > cookie_3.txt
+
+      # Jalankan 3 PHP bots paralel
+      - name: Run PHP bots
+        run: |
+          php tes/coolfaucet.php cookie_1.txt &
+          php tes/beasthit.php cookie_2.txt &
+          php tes/truebonus.php cookie_3.txt &
+          wait
